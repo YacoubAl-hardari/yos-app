@@ -1,0 +1,355 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 354 76% 44%; /*  red */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 231 65% 24%; /* dark blue */
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 354 76% 44%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 354 76% 44%; /*  red */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 231 65% 24%;; /*  dark blue */
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 354 76% 44%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  .font-arabic {
+    font-family: var(--font-arabic);
+  }
+}
+
+/* Animation styles */
+@layer components {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-in-out;
+  }
+
+  .hero-line {
+    @apply absolute bg-primary/20 dark:bg-primary/10 overflow-hidden;
+  }
+
+  .hero-line::before {
+    content: "";
+    @apply absolute bg-primary/40 dark:bg-primary/30 rounded-full;
+    width: 6px;
+    height: 6px;
+    animation: moveAlongLine 8s linear infinite;
+  }
+
+  .hero-line.horizontal {
+    height: 1px;
+    width: 100px;
+  }
+
+  .hero-line.vertical {
+    width: 1px;
+    height: 100px;
+  }
+
+  .hero-line.diagonal {
+    width: 1px;
+    height: 150px;
+    transform: rotate(45deg);
+  }
+
+  .hero-line.diagonal-reverse {
+    width: 1px;
+    height: 150px;
+    transform: rotate(-45deg);
+  }
+
+  .hero-dot {
+    @apply absolute bg-primary/40 dark:bg-primary/30 rounded-full;
+    width: 4px;
+    height: 4px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes moveAlongLine {
+  0% {
+    left: 0;
+    top: 0;
+  }
+  100% {
+    left: 100%;
+    top: 100%;
+  }
+}
+
+/* Hero background animation */
+.hero-animated-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.hero-animated-bg .line {
+  position: absolute;
+  background: linear-gradient(90deg, transparent, rgba(206, 17, 38, 0.1), transparent);
+}
+
+.hero-animated-bg .dot {
+  position: absolute;
+  background-color: rgba(206, 17, 38, 0.3);
+  border-radius: 50%;
+  transform-origin: center center;
+}
+
+.dark .hero-animated-bg .line {
+  background: linear-gradient(90deg, transparent, rgba(206, 17, 38, 0.15), transparent);
+}
+
+.dark .hero-animated-bg .dot {
+  background-color: rgba(206, 17, 38, 0.4);
+}
+
+/* Project banner animations */
+.project-banner-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.project-banner-bg .animated-line {
+  position: absolute;
+  background: linear-gradient(90deg, transparent, rgba(206, 17, 38, 0.1), transparent);
+  overflow: hidden;
+}
+
+.project-banner-bg .animated-circle {
+  position: absolute;
+  background-color: rgba(206, 17, 38, 0.2);
+  border-radius: 50%;
+}
+
+.project-banner-bg .moving-dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background-color: rgba(206, 17, 38, 0.5);
+  border-radius: 50%;
+}
+
+.dark .project-banner-bg .animated-line {
+  background: linear-gradient(90deg, transparent, rgba(206, 17, 38, 0.2), transparent);
+}
+
+.dark .project-banner-bg .animated-circle {
+  background-color: rgba(206, 17, 38, 0.3);
+}
+
+.dark .project-banner-bg .moving-dot {
+  background-color: rgba(206, 17, 38, 0.6);
+}
+
+/* About hero animations */
+.about-hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.about-hero-bg .animated-line {
+  position: absolute;
+  background: linear-gradient(90deg, transparent, rgba(206, 17, 38, 0.1), transparent);
+  overflow: hidden;
+}
+
+.about-hero-bg .animated-circle {
+  position: absolute;
+  background-color: rgba(206, 17, 38, 0.2);
+  border-radius: 50%;
+}
+
+.about-hero-bg .animated-square {
+  position: absolute;
+  background-color: rgba(107, 21, 122, 0.2);
+  border-radius: 2px;
+}
+
+.about-hero-bg .moving-dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background-color: rgba(206, 17, 38, 0.5);
+  border-radius: 50%;
+}
+
+.dark .about-hero-bg .animated-line {
+  background: linear-gradient(90deg, transparent, rgba(206, 17, 38, 0.2), transparent);
+}
+
+.dark .about-hero-bg .animated-circle {
+  background-color: rgba(206, 17, 38, 0.3);
+}
+
+.dark .about-hero-bg .animated-square {
+  background-color: rgba(120, 0, 122, 0.3);
+}
+
+.dark .about-hero-bg .moving-dot {
+  background-color: rgba(206, 17, 38, 0.6);
+}
+
+/* No transitions during theme change */
+.no-transitions * {
+  transition: none !important;
+}
+
+/* Page transition animations */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Contributors hero animations */
+.contributors-hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.contributors-line {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(206, 17, 38, 0.1), rgba(206, 17, 38, 0.2), rgba(206, 17, 38, 0.1));
+  overflow: hidden;
+}
+
+.contributors-dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background-color: rgba(206, 17, 38, 0.5);
+  border-radius: 50%;
+  top: -1.5px;
+}
+
+.dark .contributors-line {
+  background: linear-gradient(90deg, rgba(206, 17, 38, 0.2), rgba(206, 17, 38, 0.3), rgba(206, 17, 38, 0.2));
+}
+
+.dark .contributors-dot {
+  background-color: rgba(206, 17, 38, 0.6);
+}
+
+@keyframes contributorsLineIn {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+}
+
+@keyframes contributorsDotMove {
+  from {
+    left: 0;
+  }
+  to {
+    left: 100%;
+  }
+}
+
