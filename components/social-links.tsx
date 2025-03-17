@@ -28,18 +28,18 @@ export function SocialLinks() {
       url: "https://www.linkedin.com/company/yemenopensource",
       color: "hover:bg-blue-700/10 hover:text-blue-700",
     },
-    // {
-    //   name: "Website",
-    //   icon: <Globe className="h-5 w-5" />,
-    //   url: "https://yemenos.com",
-    //   color: "hover:bg-green-500/10 hover:text-green-500",
-    // },
-    // {
-    //   name: "Email",
-    //   icon: <Mail className="h-5 w-5" />,
-    //   url: "mailto:contact@yemenos.com",
-    //   color: "hover:bg-red-500/10 hover:text-red-500",
-    // },
+    {
+      name: "Website",
+      icon: <Globe className="h-5 w-5" />,
+      url: "https://yemenopensource.vercel.app/",
+      color: "hover:bg-green-500/10 hover:text-green-500",
+    },
+    {
+      name: "Email",
+      icon: <Mail className="h-5 w-5" />,
+      url: "mailto:opensource.ye@gmail.com",
+      color: "hover:bg-red-500/10 hover:text-red-500",
+    },
   ]
 
   return (
@@ -73,8 +73,8 @@ function getArabicName(name: string): string {
     GitHub: "جيثب",
     Twitter: "تويتر",
     LinkedIn: "لينكد إن",
-    // Website: "الموقع",
-    // Email: "البريد الإلكتروني",
+    Website: "الموقع",
+    Email: "البريد الإلكتروني",
   }
 
   return arabicNames[name] || name
