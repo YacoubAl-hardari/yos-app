@@ -12,13 +12,29 @@ export interface Project {
   license: string
   lastUpdated: string
   contributors: number
+  contributorsList?: Contributor[]
   tags: string[]
   owner?: string
-  defaultBranch?: string
+  defaultBranch: string;
   fullName?: string
   createdAt?: string
   updatedAt?: string
-  // Additional GitHub specific fields
+  fork?: boolean
+  sourceRepo?: {
+    name: string
+    fullName: string
+    url: string
+    stars: number
+    contributors: number
+  }
+  parent?: {
+    name: string
+    fullName: string
+    url: string
+    stars: number
+    contributors: number
+  }
+
 }
 
 export interface Contributor {
@@ -49,4 +65,3 @@ export interface ReadmeContent {
   content: string
   error?: string
 }
-

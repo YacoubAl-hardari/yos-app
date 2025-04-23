@@ -18,15 +18,12 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   // Load language preference from localStorage on initial render
   useEffect(() => {
     const savedLanguage = localStorage.getItem("language")
-    if (savedLanguage === "ar") {
-      setLanguage("ar")
-      document.documentElement.dir = "rtl"
-      document.documentElement.lang = "ar"
-    } else {
-      document.documentElement.dir = "ltr"
-      document.documentElement.lang = "en"
-    }
-  }, []) // Empty dependency array to run only once on mount
+    const lang = savedLanguage === "ar" ? "ar" : "en"
+    setLanguage(lang)
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr"
+    document.documentElement.lang = lang
+  }, [])
+  
 
   const toggleLanguage = () => {
     const newLanguage = language === "en" ? "ar" : "en"

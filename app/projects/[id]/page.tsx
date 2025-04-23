@@ -13,7 +13,7 @@ import { Markdown } from "@/components/markdown"
 import type { Project, Contributor } from "@/lib/types"
 import Link from "next/link"
 import { PageTransition } from "@/components/page-transition"
-
+import { githubQueue } from "@/lib/github-queue";
 export default function ProjectDetailsPage() {
   const params = useParams()
   const router = useRouter()
@@ -27,43 +27,63 @@ export default function ProjectDetailsPage() {
   useEffect(() => {
     async function loadProjectData() {
       try {
-        setLoading(true)
-        const projectId = params.id as string
-
-        // Fetch all repositories
-        const repos = await fetchRepositories()
-        const foundProject = repos.find((p) => p.id === projectId)
-
+        setLoading(true);
+        const projectId = params.id as string;
+  
+        // Queue repositories fetch
+        const repos = await githubQueue.add(() => fetchRepositories());
+        const foundProject = repos.find((p) => p.id === projectId);
+  
         if (!foundProject) {
-          setError("Project not found")
-          setLoading(false)
-          return
+          setError("Project not found");
+          setLoading(false);
+          return;
         }
-
-        setProject(foundProject)
-
-        // Fetch README content
+  
+        setProject(foundProject);
+  
         if (foundProject.owner && foundProject.fullName) {
-          const [owner, repo] = foundProject.fullName.split("/")
-          const readmeContent = await fetchRepositoryReadme(owner, repo, foundProject.defaultBranch || "main")
-          setReadme(readmeContent)
+          const [owner, repo] = foundProject.fullName.split("/");
+          
+          // Validate defaultBranch before fetching README
+          if (!foundProject.defaultBranch) {
+            console.error("Default branch is undefined for project:", foundProject);
+            setError("Failed to load README: Default branch is missing.");
+            setLoading(false);
+            return;
+          }
 
-          // Fetch contributors
-          const contributorsData = await fetchRepositoryContributors(owner, repo)
-          setContributors(contributorsData)
+          // Parallelize README and contributors with queue
+          const [readmeContent, contributorsData] = await Promise.all([
+            githubQueue.add(() => 
+              fetchRepositoryReadme(owner, repo, foundProject.defaultBranch!)
+            ).catch((err) => {
+              console.error("Error fetching README:", err);
+              return "Failed to load README content.";
+            }),
+            githubQueue.add(() => 
+              fetchRepositoryContributors(owner, repo, true, false)
+            ).catch((err) => {
+              console.error("Error fetching contributors:", err);
+              return [];
+            })
+          ]);
+  
+          setReadme(readmeContent);
+          setContributors(contributorsData);
         }
-
-        setError(null)
+  
+        setError(null);
       } catch (err) {
-        console.error("Error loading project data:", err)
-        setError("Failed to load project data. Please try again later.")
+        console.error("Error loading project data:", err);
+        setError("Failed to load project data. Please try again later.");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
-
-    loadProjectData()
-  }, [params.id])
+  
+    loadProjectData();
+  }, [params.id]);
 
   if (loading) {
     return (
@@ -98,6 +118,8 @@ export default function ProjectDetailsPage() {
       </div>
     )
   }
+
+  const displayStars = project.fork && project.sourceRepo ? project.sourceRepo.stars : project.stars;
 
   return (
     <PageTransition>
@@ -138,7 +160,7 @@ export default function ProjectDetailsPage() {
                     <Star className="h-5 w-5 text-yellow-500" />
                     <div>
                       <div className="text-sm text-muted-foreground">{language === "ar" ? "النجوم" : "Stars"}</div>
-                      <div className="font-medium">{project.stars}</div>
+                      <div className="font-medium">{displayStars || "-"}</div>
                     </div>
                   </div>
 
@@ -148,7 +170,7 @@ export default function ProjectDetailsPage() {
                       <div className="text-sm text-muted-foreground">
                         {language === "ar" ? "المساهمون" : "Contributors"}
                       </div>
-                      <div className="font-medium">{contributors.length}</div>
+                      <div className="font-medium">{contributors.length || project.contributors || "-"}</div>
                     </div>
                   </div>
 
@@ -249,6 +271,47 @@ export default function ProjectDetailsPage() {
                 </div>
               </div>
 
+
+              {project.fork && project.sourceRepo && (
+                <div className="bg-card rounded-lg shadow-sm p-6 border border-border mt-6">
+                  <h3 className={cn("text-xl font-bold mb-4", language === "ar" && "font-arabic")}>
+                    {language === "ar" ? "المستودع الأصلي" : "Original Repository"}
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Github className="h-4 w-4" />
+                      <Link
+                        href={project.sourceRepo.url}
+                        target="_blank"
+                        className="font-medium hover:text-yemen-red transition-colors"
+                      >
+                        {project.sourceRepo.fullName}
+                      </Link>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      <span>
+                        {project.sourceRepo.stars} {language === "ar" ? "نجمة" : "stars"}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        "mt-2 border-yemen-red/20 hover:bg-yemen-red/5 hover:text-yemen-red",
+                        language === "ar" && "font-arabic flex-row-reverse",
+                      )}
+                      asChild
+                    >
+                      <Link href={project.sourceRepo.url} target="_blank">
+                        <ExternalLink className={cn("h-4 w-4", language === "ar" ? "ml-2" : "mr-2")} />
+                        {language === "ar" ? "زيارة المستودع الأصلي" : "Visit Original Repository"}
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               {contributors.length > 0 && (
                 <div className="bg-card rounded-lg shadow-sm p-6 border border-border">
                   <div className="flex items-center justify-between mb-4">
@@ -301,4 +364,3 @@ export default function ProjectDetailsPage() {
     </PageTransition>
   )
 }
-

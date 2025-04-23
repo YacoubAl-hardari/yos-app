@@ -63,7 +63,7 @@ export function HeroSection() {
             </div>
           </form>
           <div className="flex flex-wrap justify-center gap-2 mt-8">
-            {["javascript", "react", "nodejs", "python", "mobile", "web"].map((tag) => (
+            {["php", "react", "laravel", "python", "filament", "typescript"].map((tag) => (
               <Button
                 key={tag}
                 variant="outline"

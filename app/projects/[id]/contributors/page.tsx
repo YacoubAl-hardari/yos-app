@@ -13,8 +13,9 @@ import { ContributorsChart } from "@/components/contributors-chart"
 import { ContributorCard } from "@/components/contributor-card"
 import { ContributorsStatistics } from "@/components/contributors-statistics"
 import { ContributorsTimeline } from "@/components/contributors-timeline"
-import { fetchRepositories, fetchRepositoryContributors } from "@/lib/github-service"
+import { fetchRepositories, fetchRepositoryContributors, fetchRepositoryReadme } from "@/lib/github-service"
 import { PageTransition } from "@/components/page-transition"
+import { Markdown } from "@/components/markdown"   
 import type { Project, Contributor } from "@/lib/types"
 
 export default function ContributorsPage() {
@@ -27,6 +28,7 @@ export default function ContributorsPage() {
   const [activeTab, setActiveTab] = useState("overview")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [readmeContent, setReadmeContent] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadData() {
@@ -48,7 +50,7 @@ export default function ContributorsPage() {
         // Fetch contributors with detailed stats
         if (foundProject.owner && foundProject.fullName) {
           const [owner, repo] = foundProject.fullName.split("/")
-          const contributorsData = await fetchRepositoryContributors(owner, repo)
+          const contributorsData = await fetchRepositoryContributors(owner, repo, true, true)
           setContributors(contributorsData)
         }
 
@@ -63,6 +65,25 @@ export default function ContributorsPage() {
 
     loadData()
   }, [params.id])
+
+  useEffect(() => {
+    async function loadReadme() {
+      if (project?.owner && project?.fullName) {
+        try {
+          const [owner, repo] = project.fullName.split("/")
+          const readme = await fetchRepositoryReadme(owner, repo, project.defaultBranch)
+          setReadmeContent(readme)
+        } catch (error) {
+          console.error("Error fetching README:", error)
+          setReadmeContent("Failed to load README content.")
+        }
+      }
+    }
+
+    if (project) {
+      loadReadme()
+    }
+  }, [project])
 
   if (loading) {
     return (
@@ -116,6 +137,18 @@ export default function ContributorsPage() {
             <ContributorsStatistics contributors={contributors} />
           </div>
 
+          {/* README Section */}
+          {/* {readmeContent && ( */}
+            {/*  <div className="bg-card border rounded-lg p-6 mb-8"> */}
+              {/* <h2 className={cn("text-2xl font-bold mb-4", language === "ar" && "font-arabic")}> */}
+                {/* README */}
+              {/* </h2> */}
+              {/* <div className={cn("prose dark:prose-invert max-w-none", language === "ar" && "rtl")}> */}
+                {/* <Markdown content={readmeContent} />     ← render markdown here */}
+              {/* </div> */}
+            {/* </div> */}
+          {/*  )} */}
+
           {/* Tabs for different views */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -132,7 +165,7 @@ export default function ContributorsPage() {
               </TabsList>
 
               <div className="flex gap-4">
-           <Select value={period} onValueChange={setPeriod}>
+                <Select value={period} onValueChange={setPeriod}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder={language === "ar" ? "اختر الفترة" : "Select period"} />
                   </SelectTrigger>

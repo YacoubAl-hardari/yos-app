@@ -11,10 +11,9 @@ import { useTheme } from "@/components/theme-provider"
 import { useLanguage } from "@/lib/language-context"
 import { cn } from "@/lib/utils"
 
-interface MarkdownProps {
-  content: string
+type MarkdownProps = {
+  content: string | null
 }
-
 // Add a helper function to detect if text is primarily Arabic
 function isPrimarilyArabic(text: string): boolean {
   // Arabic Unicode range: \u0600-\u06FF
@@ -26,7 +25,7 @@ export function Markdown({ content }: MarkdownProps) {
   const { theme } = useTheme()
   const { language } = useLanguage()
   const [mounted, setMounted] = useState(false)
-  const isArabic = isPrimarilyArabic(content)
+  const isArabic = content ? isPrimarilyArabic(content) : false
 
   useEffect(() => {
     setMounted(true)
@@ -34,6 +33,10 @@ export function Markdown({ content }: MarkdownProps) {
 
   if (!mounted) {
     return <div className="animate-pulse h-96 bg-muted rounded-md"></div>
+  }
+  
+  if (!content) {
+    return <div className="text-muted-foreground text-center py-8">No content available</div>
   }
 
   return (
@@ -93,9 +96,20 @@ export function Markdown({ content }: MarkdownProps) {
               />
             );
           },
-          ol({ node, ...props }) {
-            return <ol className={cn("list-decimal pl-6 my-4", isArabic && "pr-6 pl-0")} {...props} />
+          ol({ node, ordered, ...props }) {
+            return (
+              <ol
+                {...props}
+                suppressHydrationWarning
+                className={cn(
+                  isArabic && "font-arabic text-right",
+                  props.className 
+                )}
+                {...(ordered !== undefined && { ordered: ordered.toString() })}
+              />
+            );
           },
+
           li({ node, ordered, ...props }) {
             return (
               <li
@@ -122,9 +136,22 @@ export function Markdown({ content }: MarkdownProps) {
           th({ node, ...props }) {
             return <th className={cn("px-4 py-2 text-left font-medium", isArabic && "text-right")} {...props} />
           },
-          td({ node, ...props }) {
-            return <td className={cn("px-4 py-2 border-t border-border", isArabic && "text-right")} {...props} />
+        
+          td({ node, isHeader, ...props }) {
+            return (
+              <td
+                {...props}
+                suppressHydrationWarning
+                className={cn(
+                  "px-4 py-2 border-t border-border", 
+                  isArabic && "text-right", 
+                  isHeader && "font-bold"
+                )}
+              />
+            );
           },
+          
+
           blockquote({ node, ...props }) {
             return (
               <blockquote
@@ -138,7 +165,7 @@ export function Markdown({ content }: MarkdownProps) {
           },
         }}
       >
-        {content}
+         {content}
       </ReactMarkdown>
     </div>
   )

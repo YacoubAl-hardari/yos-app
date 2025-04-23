@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ExternalLink, Github, Star } from "lucide-react"
+import { ExternalLink, GitFork, Github, Star } from "lucide-react"
 import { motion } from "framer-motion"
 import { useLanguage } from "@/lib/language-context"
 import { cn } from "@/lib/utils"
@@ -16,6 +16,9 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ project }: ProjectCardProps) {
   const { language } = useLanguage()
+  const displayStars = project.fork && project.sourceRepo
+                    ? project.sourceRepo.stars
+                    : project.stars
 
   const MotionCard = motion(Card)
 
@@ -25,7 +28,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       whileHover={{ y: -5 }}
       transition={{ duration: 0.2 }}
     >
-      <Link href={`/projects/${project.id}`} className="flex-grow flex flex-col">
+      <Link href={project.id ? `/projects/${project.id}` : "#"} className="flex-grow flex flex-col">
         <CardHeader className={cn("pb-3", language === "ar" && "text-right")}>
           <div className="flex items-center justify-between mb-1">
             <div
@@ -38,7 +41,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             </div>
             <div className={cn("flex items-center gap-1 text-yellow-500", language === "ar" && "order-1")}>
               <Star className="h-4 w-4 fill-current" />
-              <span className="text-sm">{project.stars}</span>
+              <span className="text-sm">{displayStars}</span>
             </div>
           </div>
           <div
@@ -52,7 +55,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         </CardHeader>
         <CardContent className={cn("pb-2 flex-grow", language === "ar" && "text-right")}>
           <div className={cn(" text-center gap-2 mt-1 mb-3 ", language === "ar" && "flex-row-reverse")}>
-            {project.tags.slice(0, 3).map((tag, idx) => (
+            {project.tags?.slice(0, 3).map((tag, idx) => (
               <Badge
                 key={idx}
                 variant="outline"
@@ -64,7 +67,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                 {tag}
               </Badge>
             ))}
-            {project.tags.length > 3 && (
+            {project.tags?.length > 3 && (
               <Badge
                 variant="outline"
                 className={cn(
@@ -90,11 +93,17 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               <span className="text-muted-foreground">{language === "ar" ? "آخر تحديث" : "Last Updated"}</span>
               <span className="font-medium">{project.lastUpdated}</span>
             </div>
-            <div className={cn("flex flex-col", language === "ar" && "items-center")}>
-              <span className="text-muted-foreground">{language === "ar" ? "المساهمون" : "Contributors"}</span>
-              <span className="font-medium">{project.contributors}</span>
-             
+              <div className={cn("flex flex-col", language === "ar" && "items-center")}>
+
+              <span className="text-muted-foreground">
+                {language === "ar" ? "المساهمون" : "Contributors"}
+              </span>
+              <span className="font-medium">
+                {project.contributorsList?.length || project.contributors || 0}
+              </span>
+              
             </div>
+
           </div>
         </CardContent>
       </Link>
@@ -109,7 +118,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             )}
             asChild
           >
-            <Link href={project.githubUrl} target="_blank">
+            <Link href={project.githubUrl || "#"} target="_blank">
               <Github className="h-4 w-4 mr-2" />
               {language === "ar" ? "المستودع" : "Repository"}
             </Link>
@@ -123,14 +132,29 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             )}
             asChild
           >
-            <Link href={project.websiteUrl} target="_blank">
+            <Link href={project.websiteUrl || "#"} target="_blank">
               <ExternalLink className="h-4 w-4 mr-2" />
               {language === "ar" ? "الموقع" : "Website"}
             </Link>
           </Button>
         </div>
       </CardFooter>
+         {project.fork && project.sourceRepo && (
+              <div className="border-t bg-muted/20 px-4 py-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <GitFork className="h-3 w-3" />
+                  <a
+                    href={project.sourceRepo.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-yemen-red hover:underline"
+                  >
+                    {project.sourceRepo.fullName}
+                  </a>
+                  <span>Forked from </span>
+                </div>
+              </div>
+            )}
     </MotionCard>
   )
 }
-

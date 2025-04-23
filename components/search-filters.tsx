@@ -22,22 +22,10 @@ export default function SearchFilters() {
   const { language } = useLanguage()
 
   // Initialize state from URL params
-  const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedLanguage, setSelectedLanguage] = useState("all")
-  const [selectedLicense, setSelectedLicense] = useState("all")
-
-  // State for dynamic filter options
-  const [categories, setCategories] = useState([
-    { id: "all", labelEn: "All Categories", labelAr: "جميع الفئات" },
-    { id: "library", labelEn: "Library", labelAr: "مكتبة" },
-    { id: "application", labelEn: "Application", labelAr: "تطبيق" },
-    { id: "tool", labelEn: "Tool", labelAr: "أداة" },
-    { id: "framework", labelEn: "Framework", labelAr: "إطار عمل" },
-  ])
 
   const [languages, setLanguages] = useState([{ id: "all", labelEn: "All Languages", labelAr: "جميع اللغات" }])
 
-  const [licenses, setLicenses] = useState([{ id: "all", labelEn: "All Licenses", labelAr: "جميع التراخيص" }])
 
   // Fetch dynamic filter options from repositories
   useEffect(() => {
@@ -64,27 +52,11 @@ export default function SearchFilters() {
             })),
         ]
 
-        // Extract unique licenses
-        const uniqueLicenses = new Set<string>()
-        repos.forEach((repo) => {
-          if (repo.license && repo.license !== "Unknown") {
-            uniqueLicenses.add(repo.license)
-          }
-        })
 
-        const licenseOptions = [
-          { id: "all", labelEn: "All Licenses", labelAr: "جميع التراخيص" },
-          ...Array.from(uniqueLicenses)
-            .sort()
-            .map((license) => ({
-              id: license.toLowerCase(),
-              labelEn: license,
-              labelAr: license,
-            })),
-        ]
+
+  
 
         setLanguages(languageOptions)
-        setLicenses(licenseOptions)
       } catch (error) {
         console.error("Error fetching filter options:", error)
       }
@@ -95,9 +67,7 @@ export default function SearchFilters() {
 
   // Sync state with URL params on mount and when searchParams changes
   useEffect(() => {
-    setSelectedCategory(searchParams.get("category") || "all")
     setSelectedLanguage(searchParams.get("language") || "all")
-    setSelectedLicense(searchParams.get("license") || "all")
   }, [searchParams])
 
   const updateFilters = (key: string, value: string) => {
@@ -120,6 +90,7 @@ export default function SearchFilters() {
       TypeScript: "تايبسكريبت",
       Python: "بايثون",
       Java: "جافا",
+      Laravel: "لارافل",
       PHP: "بي إتش بي",
       Go: "غو",
       Ruby: "روبي",
@@ -150,40 +121,7 @@ export default function SearchFilters() {
       </div>
 
       <div className={cn("flex flex-wrap gap-3", language === "ar" && "flex-row-reverse")}>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className={cn("flex items-center", language === "ar" && "font-arabic flex-row-reverse")}
-            >
-              {language === "ar"
-                ? categories.find((c) => c.id === selectedCategory)?.labelAr
-                : categories.find((c) => c.id === selectedCategory)?.labelEn}
-              <ChevronDown className={cn("ml-2 h-4 w-4", language === "ar" && "mr-2 ml-0")} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-48">
-            <DropdownMenuLabel className={language === "ar" ? "font-arabic text-right" : ""}>
-              {language === "ar" ? "الفئة" : "Category"}
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {categories.map((category) => (
-              <DropdownMenuCheckboxItem
-                key={category.id}
-                checked={selectedCategory === category.id}
-                onCheckedChange={() => {
-                  setSelectedCategory(category.id)
-                  updateFilters("category", category.id)
-                }}
-                className={language === "ar" ? "font-arabic text-right justify-between" : ""}
-              >
-                {language === "ar" ? category.labelAr : category.labelEn}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
+       
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -218,39 +156,7 @@ export default function SearchFilters() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className={cn("flex items-center", language === "ar" && "font-arabic flex-row-reverse")}
-            >
-              {language === "ar"
-                ? licenses.find((l) => l.id === selectedLicense)?.labelAr
-                : licenses.find((l) => l.id === selectedLicense)?.labelEn}
-              <ChevronDown className={cn("ml-2 h-4 w-4", language === "ar" && "mr-2 ml-0")} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-48">
-            <DropdownMenuLabel className={language === "ar" ? "font-arabic text-right" : ""}>
-              {language === "ar" ? "الترخيص" : "License"}
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {licenses.map((license) => (
-              <DropdownMenuCheckboxItem
-                key={license.id}
-                checked={selectedLicense === license.id}
-                onCheckedChange={() => {
-                  setSelectedLicense(license.id)
-                  updateFilters("license", license.id)
-                }}
-                className={language === "ar" ? "font-arabic text-right justify-between" : ""}
-              >
-                {language === "ar" ? license.labelAr : license.labelEn}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+    
       </div>
     </div>
   )
